@@ -16,5 +16,9 @@ int main() {
   if (ds.Root("5") == ds.Root("6")) {
     cout<<"Pass 2"<<endl;
   } else cout<<"Fail 2"<<endl;
+
+  ds.Union("5", "7");
+  if (ds.Root("6") == ds.Root("7")) cout<<"Pass 3"<<endl;
+  else cout<<"Fail 3"<<endl;
   return 0;
 }
