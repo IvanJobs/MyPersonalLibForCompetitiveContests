@@ -20,20 +20,35 @@ class DisjointSet {
     bool Find(std::string x, std::string & out /* root representitive */) {
       if (str2int_.find(x) == str2int_.end()) return false;
 
-      int mapped_key = str2int_[x];
-      std::string out2;
-      if (under_[mapped_key] != mapped_key) {
-        Find(int2str_[under_[mapped_key]], out2)
-        int parent_idx = str2int_[out2];
-        under_[mapped_key] = parent_idx;
-      }
+      int ix = str2int_[x];
+      int ox;
+      if (find(ix, ox)) {
+        out = int2str_[ox];
+        return true; 
+      } 
 
-      out = out2;
-      return true;
+      return false;
     }
 
     void Union(std::string x, std::string y) {
     
+    }
+  private:
+    // inner find using int as key.
+    bool find(int x, int & out) {
+      if (x >= under_.size()) return false;
+      
+      if (under_[x] != x) {
+        int outx;
+        if (find(under_[x], outx)) {
+          under_[x] = outx;
+        } else {
+          // impossible
+          return false;
+        }
+      }
+
+      return x;
     }
   private:
     std::vector<int> under_;
