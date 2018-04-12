@@ -9,6 +9,7 @@ struct BSTNode {
 
   struct BSTNode * left{nullptr};
   struct BSTNode * right{nullptr};
+  struct BSTNode * parent{nullptr};
 };
 
 
@@ -89,6 +90,7 @@ void BinarySearchTree::Insert(int key, int associated_value) {
   } else {
     p_curr->right = p_new;
   }
+  p_new->parent = p_curr;
 }
 
 BSTNode * BinarySearchTree::Search(int key) {
@@ -108,7 +110,84 @@ BSTNode * BinarySearchTree::Search(int key) {
 }
 
 void BinarySearchTree::Delete(int key) {
+  // if not found key, just return
+  // if find key with no children, just delete it;
+  // if find key with one child, delete it and replace it with the child.
+  // if find key with two children, find largest in left tree, 
+  // or find smallest in right tree, replace and delete.
+  //
 
+  struct BSTNode * curr = root;
+
+  while(true) {
+    if (curr == nullptr) return ;
+    if (key == curr->key_) {
+      break;  
+    } else if (key < curr->key_) {
+      curr = curr->left;
+    } else { // key > curr->key_
+      curr = curr->right; 
+    }
+  }
+
+  // if comes here, curr->key_ == key
+  if (curr->left == nullptr && curr->right == nullptr) {
+    // delete curr?
+    if (curr->parent == nullptr) { // root
+      delete curr;
+      root = nullptr; 
+    } else { 
+      if (curr->parent->left == curr) {
+        curr->parent->left = nullptr;
+        delete curr;
+      } else {
+        curr->parent->right = nullptr;
+        delete curr; 
+      } 
+    } 
+  } else if (curr->left == nullptr && curr->right != nullptr) {
+    // recursively replace curr with curr->right.
+    while (curr->right != nullptr) {
+      curr->key_ = curr->right->key_;
+      curr->associated_value_ = curr->right->associated_value_;
+
+      curr = curr->right;
+    }
+  
+    // delete curr
+    struct BSTNode * to_be_removed = curr;
+    curr->parent->right = nullptr; 
+    delete to_be_removed;
+  } else if (curr->left != nullptr && curr->right == nullptr) {
+    while(curr->left != nullptr) {
+      curr->key_ = curr->left->key_;
+      curr->associated_value_ = curr->left->associated_value_;
+
+      curr = curr->left;
+    } 
+
+    struct BSTNode * to_be_removed = curr;
+    curr->parent->left = nullptr;
+    delete to_be_removed;
+  } else { // curr->left != nullptr && curr->right != nullptr
+    // find smallest in right subtree.
+    struct BSTNode * to_be_found = curr->right;
+    while(to_be_found->left != nullptr) to_be_found = to_be_found->left;
+    
+    // replace curr with to_be_found.
+    curr->key_ = to_be_found->key_;
+    curr->associated_value_ = to_be_found->associated_value_;
+
+    while(to_be_found->right != nullptr) {
+      to_be_found->key_ = to_be_found->right->key_;
+      to_be_found->associated_value_ = to_be_found->right->associated_value_;
+      to_be_found = to_be_found->right;
+    }
+    
+    struct BSTNode * to_be_removed = to_be_found;
+    to_be_found->parent->right = nullptr;
+    delete to_be_removed;
+  }
 }
 
 bool BinarySearchTree::Check() {
@@ -121,6 +200,7 @@ void BinarySearchTree::Travel() {
 
 void BinarySearchTree::Show() {
   queue<struct BSTNode*> q;
+  q.push(root);
   while(q.empty() == false) {
     struct BSTNode * curr = q.front();
     q.pop();
