@@ -7,3 +7,8 @@ set(CMAKE_CXX_FLAGS " -std=c++11 ")
 add_executable(disjoin_set_test
     disjoint_set_test.cpp  
 )
+
+# binary search tree
+add_executable(bst_test 
+   binary_search_tree_test.cpp
+)
