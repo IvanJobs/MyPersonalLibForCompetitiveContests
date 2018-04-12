@@ -9,7 +9,7 @@ int main() {
   }
 
   bst.Show();
-
+  bst.Travel();
   if (bst.Check()) {
     cout<<"Pass case 1"<<endl;
   } else {
@@ -18,6 +18,7 @@ int main() {
 
   bst.Delete(5);
   bst.Show();
+  bst.Travel();
 
   if (bst.Check()) {
     cout<<"Pass case 2"<<endl;

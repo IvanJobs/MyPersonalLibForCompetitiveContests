@@ -3,9 +3,14 @@
 using namespace std;
 
 struct BSTNode {
-  BSTNode(int key, int associated_value): key_(key), associated_value_(associated_value) {}
+  BSTNode(int key, int associated_value): key_(key), associated_value_(associated_value) {
+    max_ = numeric_limits<int>::max();
+    min_ = numeric_limits<int>::lowest();
+  }
   int key_;
   int associated_value_;
+  int max_;
+  int min_;
 
   struct BSTNode * left{nullptr};
   struct BSTNode * right{nullptr};
@@ -19,11 +24,12 @@ class BinarySearchTree {
     void Insert(int key, int associated_value); // add new node by (key, associated_value).
     struct BSTNode * Search(int key); // search node by key.
     void Delete(int key); // delete node by key.
-    bool Check(); // verification.
+    bool Check(struct BSTNode * curr); // verification.
     void Travel(); // in order traversal.
     void Show(); // showing bst in ascii style graph.
   private:
     void releaseNodes(struct BSTNode * p_curr);
+    void dfs(struct BSTNode * curr);
     struct BSTNode * root{nullptr};
 };
 
@@ -190,12 +196,21 @@ void BinarySearchTree::Delete(int key) {
   }
 }
 
-bool BinarySearchTree::Check() {
+bool BinarySearchTree::Check(struct BSTNode * curr) {
+  if (curr == nullptr) return true;
+  if (curr->left != nullptr) {
+    if (curr->key_ >= curr->left->key_) 
+  }
+  if (curr->right != nullptr) {
+  
+  }
 
+  return true;
 }
 
 void BinarySearchTree::Travel() {
-
+  dfs(root); 
+  cout<<endl;
 }
 
 void BinarySearchTree::Show() {
@@ -216,4 +231,15 @@ void BinarySearchTree::Show() {
     }
     cout<<endl;
   } 
+}
+
+void BinarySearchTree::dfs(struct BSTNode * curr) {
+  if (curr == nullptr) return ;
+  if (curr->left != nullptr) {
+    dfs(curr->left);
+  }
+  cout<<curr->key_<<" ";
+  if (curr->right != nullptr) {
+    dfs(curr->right);
+  }
 }
