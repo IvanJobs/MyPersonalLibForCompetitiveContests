@@ -26,5 +26,13 @@ int main() {
     cout<<"Fail case 2"<<endl;
   }
 
+  bst.Hack();
+  bst.Show();
+  if (bst.Check()) {
+    cout<<"Fail case 3"<<endl;
+  } else {
+    cout<<"Pass case 3"<<endl;
+  }
+
   return 0;
 }

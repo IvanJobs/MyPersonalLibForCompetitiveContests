@@ -3,9 +3,7 @@
 using namespace std;
 
 struct BSTNode {
-  BSTNode(int key, int associated_value): key_(key), associated_value_(associated_value) {
-    max_ = numeric_limits<int>::max();
-    min_ = numeric_limits<int>::lowest();
+  BSTNode(int key, int associated_value): key_(key), associated_value_(associated_value), max_(key), min_(key) {
   }
   int key_;
   int associated_value_;
@@ -24,12 +22,14 @@ class BinarySearchTree {
     void Insert(int key, int associated_value); // add new node by (key, associated_value).
     struct BSTNode * Search(int key); // search node by key.
     void Delete(int key); // delete node by key.
-    bool Check(struct BSTNode * curr); // verification.
+    bool Check(); // verification.
     void Travel(); // in order traversal.
     void Show(); // showing bst in ascii style graph.
+    void Hack();
   private:
     void releaseNodes(struct BSTNode * p_curr);
     void dfs(struct BSTNode * curr);
+    void fillMinMax(struct BSTNode * curr);
     struct BSTNode * root{nullptr};
 };
 
@@ -196,13 +196,34 @@ void BinarySearchTree::Delete(int key) {
   }
 }
 
-bool BinarySearchTree::Check(struct BSTNode * curr) {
-  if (curr == nullptr) return true;
-  if (curr->left != nullptr) {
-    if (curr->key_ >= curr->left->key_) 
-  }
-  if (curr->right != nullptr) {
+bool BinarySearchTree::Check() {
+  if (root == nullptr) return true;
+  // fillMinMax first
+  fillMinMax(root);
   
+  // bfs all nodes, and check if curr->key_ >= curr->left->max_
+  // and curr->key_ < curr->right->min_
+  queue<struct BSTNode *> q;
+  q.push(root);  
+  while(q.empty() == false) {
+    struct BSTNode * curr = q.front();
+    q.pop();
+
+    if (curr->left != nullptr &&
+        curr->key_ < curr->left->max_) {
+      return false;
+    }
+    if (curr->right != nullptr &&
+        curr->key_ > curr->right->min_) {
+      return false;
+    }
+
+    if (curr->left != nullptr) {
+      q.push(curr->left);
+    }
+    if (curr->right != nullptr) {
+      q.push(curr->right);
+    }
   }
 
   return true;
@@ -233,6 +254,10 @@ void BinarySearchTree::Show() {
   } 
 }
 
+void BinarySearchTree::Hack() {
+  if (root != nullptr) root->key_ = 10000;
+}
+
 void BinarySearchTree::dfs(struct BSTNode * curr) {
   if (curr == nullptr) return ;
   if (curr->left != nullptr) {
@@ -242,4 +267,20 @@ void BinarySearchTree::dfs(struct BSTNode * curr) {
   if (curr->right != nullptr) {
     dfs(curr->right);
   }
+}
+
+void BinarySearchTree::fillMinMax(struct BSTNode * curr) {
+  if (curr == nullptr) return ;
+  int pending_min = curr->key_;
+  int pending_max = curr->key_;
+  if (curr->left != nullptr) {
+    fillMinMax(curr->left);
+    pending_min = min(pending_min, curr->left->min_);
+  }
+  if (curr->right != nullptr) {
+    fillMinMax(curr->right);
+    pending_max = max(pending_max, curr->right->max_);
+  }
+  curr->min_ = pending_min;
+  curr->max_ = pending_max;
 }
