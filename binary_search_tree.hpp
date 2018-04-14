@@ -152,29 +152,27 @@ void BinarySearchTree::Delete(int key) {
       } 
     } 
   } else if (curr->left == nullptr && curr->right != nullptr) {
-    // recursively replace curr with curr->right.
-    while (curr->right != nullptr) {
-      curr->key_ = curr->right->key_;
-      curr->associated_value_ = curr->right->associated_value_;
-
-      curr = curr->right;
-    }
-  
-    // delete curr
-    struct BSTNode * to_be_removed = curr;
-    curr->parent->right = nullptr; 
-    delete to_be_removed;
-  } else if (curr->left != nullptr && curr->right == nullptr) {
-    while(curr->left != nullptr) {
-      curr->key_ = curr->left->key_;
-      curr->associated_value_ = curr->left->associated_value_;
-
-      curr = curr->left;
+    if (curr->parent == nullptr) { // root
+      root = curr->right;
+    } else {
+      if (curr->parent->left == curr) {
+        curr->parent->left = curr->right; 
+      } else { // curr->parent->right == curr
+        curr->parent->right = curr->right; 
+      } 
     } 
-
-    struct BSTNode * to_be_removed = curr;
-    curr->parent->left = nullptr;
-    delete to_be_removed;
+    delete curr;
+  } else if (curr->left != nullptr && curr->right == nullptr) {
+    if (curr->parent == nullptr) { // root
+      root = curr->left;
+    } else {
+      if (curr->parent->left == curr) { // left
+        curr->parent->left = curr->left; 
+      } else { // right
+        curr->parent->right = curr->left;
+      }
+    }
+    delete curr;
   } else { // curr->left != nullptr && curr->right != nullptr
     // find smallest in right subtree.
     struct BSTNode * to_be_found = curr->right;
@@ -183,16 +181,24 @@ void BinarySearchTree::Delete(int key) {
     // replace curr with to_be_found.
     curr->key_ = to_be_found->key_;
     curr->associated_value_ = to_be_found->associated_value_;
-
-    while(to_be_found->right != nullptr) {
-      to_be_found->key_ = to_be_found->right->key_;
-      to_be_found->associated_value_ = to_be_found->right->associated_value_;
-      to_be_found = to_be_found->right;
-    }
     
-    struct BSTNode * to_be_removed = to_be_found;
-    to_be_found->parent->right = nullptr;
-    delete to_be_removed;
+    // to delete to_be_found.
+    if (to_be_found->right == nullptr) { 
+    // to_be_found is a leaf node
+      if (to_be_found->parent->left == to_be_found) {
+        to_be_found->parent->left = nullptr; 
+      } else {
+        to_be_found->parent->right = nullptr; 
+      } 
+    } else {
+      if (to_be_found->parent->left == to_be_found) {
+        to_be_found->parent->left = to_be_found->right;
+      } else {
+        to_be_found->parent->right = to_be_found->right;
+      }
+    }
+
+    delete to_be_found;
   }
 }
 
