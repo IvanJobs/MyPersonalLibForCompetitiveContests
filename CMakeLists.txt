@@ -12,3 +12,7 @@ add_executable(disjoin_set_test
 add_executable(bst_test 
    binary_search_tree_test.cpp
 )
+
+# binary heap
+add_executable(bh_test
+    binary_heap_test.cpp)
