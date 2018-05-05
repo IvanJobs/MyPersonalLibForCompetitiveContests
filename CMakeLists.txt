@@ -16,3 +16,9 @@ add_executable(bst_test
 # binary heap
 add_executable(bh_test
     binary_heap_test.cpp)
+
+# trie
+add_executable(trie_test
+    trie_test.cpp)
+
+

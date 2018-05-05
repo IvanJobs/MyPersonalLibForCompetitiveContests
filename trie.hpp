@@ -20,7 +20,7 @@ class Trie {
   public:
     Trie() {
       flat_nodes_.push_back(TrieNode());
-      root_ = &flat_nodes_[flat_nodes.size() - 1];
+      root_ = &flat_nodes_[flat_nodes_.size() - 1];
     }
     // insert a string
     void Insert(const string & s) {
@@ -45,8 +45,21 @@ class Trie {
       }  
     }
     bool Has(const string & s) {
-       
+        if (s == "") return true;
+
+        TrieNode * curr = root_;
+        for (size_t i = 0; i < s.size(); i++) {
+            int idx = s[i] - 'a';
+            if (curr->children_[idx] == nullptr) return false;
+
+            curr = curr->children_[idx];
+            if (i == s.size() - 1 && curr->final_ == false) {
+                return false;
+            }
+        }
+        return true;
     } 
+
   private:
     TrieNode * newTrieNode() {
       flat_nodes_.push_back(TrieNode());
