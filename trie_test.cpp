@@ -1,18 +1,19 @@
+#include <gtest/gtest.h>
 #include <bits/stdc++.h>
 #include "trie.hpp"
 
 using namespace std;
 
-int main() {
+TEST(TrieBasic, CheckHas) {
     Trie t;
-
-    vector<string> v{"hello", "world"};
+    vector<string> v {"hello", "world"};
     for (auto s: v) t.Insert(s);
 
-    if (t.Has("hello")) cout<<"Pass case 1"<<endl;
-    else cout<<"Fail case 1"<<endl;
+    EXPECT_TRUE(t.Has("hello"));
+    EXPECT_FALSE(t.Has("hel"));
+}
 
-    if (t.Has("he")) cout<<"Fail case 2"<<endl;
-    else cout<<"Pass case 2"<<endl;
-    return 0;
+int main(int argc, char * argv[]) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

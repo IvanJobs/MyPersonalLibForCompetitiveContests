@@ -21,4 +21,14 @@ add_executable(bh_test
 add_executable(trie_test
     trie_test.cpp)
 
+target_link_libraries(trie_test
+    gtest)
+
+
+# treap 
+add_executable(treap_test
+    treap_test.cpp)
+
+target_link_libraries(treap_test
+    gtest)
 
