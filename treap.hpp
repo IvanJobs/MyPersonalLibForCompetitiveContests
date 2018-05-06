@@ -4,7 +4,10 @@
 using namespace std;
 
 struct DummyNode {
-    DummyNode(int key):key_(key) {}
+    DummyNode(int key):key_(key) {
+        srand(time(nullptr));
+        fix_ = rand();
+    }
     int key_;
     int fix_;
     struct DummyNode * left_{nullptr};
@@ -47,7 +50,6 @@ class Treap {
             return size;
         }
     private:
-        int genRandomInt();
         void recursiveInsert(TreapNode * & curr, int key);
         void recursiveDelete(TreapNode * & curr, int key);
         void keySwap(TreapNode * lhs, TreapNode * rhs) {
@@ -56,15 +58,13 @@ class Treap {
 
         TreapNode * & findRightSubtreeMin(TreapNode * & curr);
         TreapNode * & findLeftSubtreeMax(TreapNode * & curr);
+
+        void rightRotate(TreapNode * & parent, TreapNode * & left);
+        void leftRotate(TreapNode * & parent, TreapNode * & right);
     private:
         TreapNode * root_{nullptr};
         size_t size{0};
 };
-
-int Treap::genRandomInt() {
-    srand(time(nullptr));
-    return rand();
-}
 
 Treap::~Treap() {
     if (root_ == nullptr) return ;
@@ -86,6 +86,7 @@ void Treap::recursiveInsert(TreapNode * & curr, int key) {
     if (curr == nullptr) {
         // find where to insert the curr node.
         curr = new TreapNode(key);
+        
         return ;
     }
     if (key <= curr->key_) {
@@ -150,6 +151,26 @@ TreapNode * & Treap::findLeftSubtreeMax(TreapNode * & curr) {
         curr = curr->right_;
     }
     return curr;
+}
+
+void Treap::leftRotate(TreapNode * & y, TreapNode * & x) {
+    TreapNode * & a = x->left_;
+    TreapNode * & b = y->left_;
+    TreapNode * & c = y->right_;
+
+    x->right_ = b;
+    y->left_ = x;
+    x = y;
+}
+
+void Treap::rightRotate(TreapNode * & x, TreapNode * & y) {
+    TreapNode * & a = x->left_;
+    TreapNode * & b = x->right_;
+    TreapNode * & c = y->right_;
+    
+    y->left_ = b;
+    x->right_ = y;
+    y = x;
 }
 
 #endif
