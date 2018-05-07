@@ -52,15 +52,16 @@ class Treap {
     private:
         void recursiveInsert(TreapNode * & curr, int key);
         void recursiveDelete(TreapNode * & curr, int key);
-        void keySwap(TreapNode * lhs, TreapNode * rhs) {
+        void nodeSwap(TreapNode * lhs, TreapNode * rhs) {
             swap(lhs->key_, rhs->key_);
+            swap(lhs->fix_, rhs->fix_);
         }
 
         TreapNode * & findRightSubtreeMin(TreapNode * & curr);
         TreapNode * & findLeftSubtreeMax(TreapNode * & curr);
 
-        void rightRotate(TreapNode * & parent, TreapNode * & left);
-        void leftRotate(TreapNode * & parent, TreapNode * & right);
+        void rightRotate(TreapNode * & parent);
+        void leftRotate(TreapNode * & parent);
     private:
         TreapNode * root_{nullptr};
         size_t size{0};
@@ -91,8 +92,14 @@ void Treap::recursiveInsert(TreapNode * & curr, int key) {
     }
     if (key <= curr->key_) {
         recursiveInsert(curr->left_, key); 
+        if (curr->left_->fix_ < curr->fix_) {
+            rightRotate(curr); 
+        }
     } else {
         recursiveInsert(curr->right_, key);
+        if (curr->right_->fix_ < curr->fix_) {
+            leftRotate(curr);
+        }
     }
 }
 
@@ -118,9 +125,38 @@ void Treap::recursiveDelete(TreapNode * & curr, int key) {
             delete tobe_deleted;
         } else { // two children
             TreapNode * & right_min = findRightSubtreeMin(curr->right_);
-            this->keySwap(right_min, curr);
-
+            this->nodeSwap(right_min, curr);
+            
             recursiveDelete(right_min, key);
+            
+            // maintain curr, it is possible that curr->fix_ brokes heap properties.
+            while(true) {
+                if (curr->Leaf()) break;
+                else if (curr->SingleLeft()) {
+                    if (curr->fix_ <= curr->left_->fix_) break;
+                    else {
+                        rightRotate(curr);
+                        curr = curr->right_;
+                    }
+                } else if (curr->SingleRight()) {
+                    if (curr->fix_ <= curr->right_->fix_) break;
+                    else {
+                        leftRotate(curr);
+                        curr = curr->left_;
+                    }
+                } else {
+                    int min_fix = min(curr->fix_, curr->left_->fix_); 
+                    min_fix = min(min_fix, curr->right_->fix_); 
+                    if (min_fix == curr->fix_) break;
+                    else if (min_fix == curr->left_->fix_) {
+                        rightRotate(curr);
+                        curr = curr->right_;
+                    } else {
+                        leftRotate(curr);
+                        curr = curr->left_;
+                    }
+                }
+            }
         }
     }
 }
@@ -153,7 +189,8 @@ TreapNode * & Treap::findLeftSubtreeMax(TreapNode * & curr) {
     return curr;
 }
 
-void Treap::leftRotate(TreapNode * & y, TreapNode * & x) {
+void Treap::leftRotate(TreapNode * & x) {
+    TreapNode * & y = x->right_;
     TreapNode * & a = x->left_;
     TreapNode * & b = y->left_;
     TreapNode * & c = y->right_;
@@ -163,7 +200,8 @@ void Treap::leftRotate(TreapNode * & y, TreapNode * & x) {
     x = y;
 }
 
-void Treap::rightRotate(TreapNode * & x, TreapNode * & y) {
+void Treap::rightRotate(TreapNode * & y) {
+    TreapNode * & x = y->left_;
     TreapNode * & a = x->left_;
     TreapNode * & b = x->right_;
     TreapNode * & c = y->right_;
