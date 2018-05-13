@@ -31,4 +31,10 @@ add_executable(treap_test
 
 target_link_libraries(treap_test
     gtest)
+# fenwick 
+add_executable(fenwick_test
+    binary_index_tree_test.cpp)
+
+target_link_libraries(fenwick_test
+    gtest)
 
