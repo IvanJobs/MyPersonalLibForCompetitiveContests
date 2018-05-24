@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(PersonalLib)
 
 set(CMAKE_CXX_FLAGS " -std=c++11 ")
+link_libraries(gtest)
 # disjoint set
 add_executable(disjoin_set_test
     disjoint_set_test.cpp  
@@ -21,20 +22,20 @@ add_executable(bh_test
 add_executable(trie_test
     trie_test.cpp)
 
-target_link_libraries(trie_test
-    gtest)
-
-
 # treap 
 add_executable(treap_test
     treap_test.cpp)
 
-target_link_libraries(treap_test
-    gtest)
 # fenwick 
 add_executable(fenwick_test
     binary_index_tree_test.cpp)
 
-target_link_libraries(fenwick_test
-    gtest)
+# radix sort
+add_executable(radix_test 
+    radix_sort.cpp)
+
+# fast power 
+add_executable(fast_power
+    fast_power_test.cpp)
+
 
