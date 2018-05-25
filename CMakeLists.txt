@@ -32,7 +32,7 @@ add_executable(fenwick_test
 
 # radix sort
 add_executable(radix_test 
-    radix_sort.cpp)
+    radix_sort_test.cpp)
 
 # fast power 
 add_executable(fast_power
