@@ -43,6 +43,7 @@ class RadixSort {
                 std::vector<int> digits_cache;
                 for (size_t j = 0; j < a.size(); j++) {
                     int d = GetShiftValue(a[j], i);
+                    cout<<d<<endl;
                     digits_cache.push_back(d);
                     buckets[d]++;
                 } 
