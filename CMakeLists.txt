@@ -38,4 +38,8 @@ add_executable(radix_test
 add_executable(fast_power
     fast_power_test.cpp)
 
+# suffix array
+add_executable(sa_test
+    suffix_array_test.cpp)
+
 
