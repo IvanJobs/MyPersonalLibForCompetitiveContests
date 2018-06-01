@@ -42,4 +42,8 @@ add_executable(fast_power
 add_executable(sa_test
     suffix_array_test.cpp)
 
+# kmp 
+add_executable(kmp_test
+    kmp_test.cpp)
+
 
