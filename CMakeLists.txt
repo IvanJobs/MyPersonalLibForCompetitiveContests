@@ -46,4 +46,6 @@ add_executable(sa_test
 add_executable(kmp_test
     kmp_test.cpp)
 
-
+# tarjan sparse table
+add_executable(tarjan_st_test
+    tarjan_sparse_table_test.cpp)
