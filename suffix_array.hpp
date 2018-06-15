@@ -17,6 +17,33 @@ class SuffixArray {
             return sa_;
         } 
 
+        // return length of Longest Common Prefix(A[i...], A[j...]).
+        int LCP(int i, int j) {
+            // logn, using rank_.
+            //
+            int res = 0;
+            while(true){
+                if (i >= rank_.size() || j >= rank_.size()) break;
+
+                int k = 0;
+                int over2 = 1;
+                int w = 0;
+                while(k < rank_[0].size() && rank_[i][k] == rank_[j][k]) {
+                    w += over2;
+                    k++;
+                    over2 *= 2;
+                }
+
+                if (k == 0) break;
+
+                res += w; 
+                i += w;
+                j += w;
+            }
+
+            return res;
+        }
+
         void BuildNaive() {
             // bind suffix string with its starting index, then do sorting as a whole part.
             using SuffixIndex = tuple<string, int>;
