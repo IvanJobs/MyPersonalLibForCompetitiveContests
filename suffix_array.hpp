@@ -3,6 +3,8 @@
 using namespace std;
 
 using SortTupleItem = tuple<int, int, int, int>; // suffix_idx, rank0, rank1, width.
+using IntVec = vector<int>;
+using IntMatrix = vector<IntVec>;
 
 class SuffixArray {
     public:
@@ -16,8 +18,10 @@ class SuffixArray {
         } 
 
         void BuildNaive() {
+            // bind suffix string with its starting index, then do sorting as a whole part.
             using SuffixIndex = tuple<string, int>;
             vector<SuffixIndex> v;
+            // prepare SuffixIndex vector.
             for (int i = 0; i < s_.size(); i++) {
                 v.push_back(make_tuple(s_.substr(i), i));
             } 
@@ -48,85 +52,86 @@ class SuffixArray {
             };
 
             sort(v.begin(), v.end(), cmp);
-            map<int, int> rank_map; // make rank_map
-            rank_map[get<1>(v[0])] = 0;
+
+            // Rank[i][k]: starts from index i, width 2^k, stores its rank.
+            //  0 <= i <= v.size() - 1, 0 <= k <= log2(v.size())
+            int logn = static_cast<int>(log2(static_cast<double>(v.size())));
+            logn += 1; // because we want rank_[i][k] to cover the whole array sized with v.size().
+
+            // init Rank.
+            rank_.clear();
+            for (int i = 0; i < v.size(); i++) {
+                rank_.push_back(IntVec(1 + logn)); // 0 1 2 ... logn
+            }
+
+            // prepare Rank[i][0]
+            rank_[get<1>(v[0])][0] = 0;
             for (int i = 1; i < v.size(); i++) {
-                int previous_idx = get<1>(v[i - 1]);
-                int current_idx = get<1>(v[i]);
-                if (s_[previous_idx] == s_[current_idx]) {
-                    rank_map[current_idx] = rank_map[previous_idx];
+                if (get<0>(v[i]) == get<0>(v[i - 1])) {
+                    rank_[get<1>(v[i])][0] = rank_[get<1>(v[i - 1])][0];
                 } else {
-                    rank_map[current_idx] = rank_map[previous_idx] + 1;
+                    rank_[get<1>(v[i])][0] = rank_[get<1>(v[i - 1])][0] + 1;
                 }
-            }
+            } // finish Rank[i][0]
 
-            using SortTupleItem = tuple<int, int, int, int>; // suffix_idx, rank0, rank1, width.
-            vector<SortTupleItem> vec;
-            { //prepare initial state
+            int last_w = 1;
+            vector<SortTupleItem> vec_to_sort;
+            for (int k = 1; k <= logn; k++) {
+                // work with Rank[i][k]
+                vec_to_sort.clear();
                 for (int i = 0; i < v.size(); i++) {
-                    int suffix_idx = get<1>(v[i]);
-                    int rank0 = rank_map[suffix_idx];
-                    int w = 1;
-                    int rank1 = -1;
-                    if (suffix_idx + w < v.size())
-                        rank1 = rank_map[suffix_idx + w];
-                    vec.push_back(make_tuple(suffix_idx, rank0, rank1, w));        
-                }        
-            }
-
-            { // loop until w >= s_.size();
-                auto rank_cmp = [](SortTupleItem a, SortTupleItem b) {
-                    if (get<1>(a) < get<1>(b)) return true;
-                    else if (get<1>(a) > get<1>(b)) return false;
-                    else {
-                        if (get<2>(a) < get<2>(b)) return true;
-                        else return false;
+                    int rank0 = rank_[i][k - 1];
+                    int shift_idx = i + last_w;
+                    int rank1 = -1; // big question mark here!!!!!!
+                    if (shift_idx < v.size()) {
+                        rank1 = rank_[shift_idx][k - 1];
                     }
-                };
+                    int suffix_idx = i;
+                    int w = last_w * 2; // seems no need to take width in the tuple.
 
-                int w = 1;
-                int target_size = int(s_.size());
-                while (w <= target_size) {
-                    // sort vec by (rank0, rank1) 
-                    sort(vec.begin(), vec.end(), rank_cmp);
-                    
-                    { // update rankings. (suffix_idx, rank0, rank1, width)
-                        rank_map[get<0>(vec[0])] = 0;
-                        for (int i = 1; i < vec.size(); i++) {
-                            int prev_idx = get<0>(vec[i - 1]);
-                            int prev_rank0 = get<1>(vec[i - 1]);
-                            int prev_rank1 = get<2>(vec[i - 1]);
-                            int curr_idx = get<0>(vec[i]);
-                            int curr_rank0 = get<1>(vec[i]);
-                            int curr_rank1 = get<2>(vec[i]);
+                    vec_to_sort.push_back(make_tuple(suffix_idx, rank0, rank1, w)); 
+                }
 
-                            if (prev_rank0 == curr_rank0 && prev_rank1 == curr_rank1) {
-                                rank_map[curr_idx] = rank_map[prev_idx];
-                            } else {
-                                rank_map[curr_idx] = rank_map[prev_idx] + 1;
-                            }
+                // sort vec_to_sort
+                {
+                    // prepare compare function.
+                    auto cmp_by_ranks = [](const SortTupleItem & a, const SortTupleItem & b) {
+                        int rank0a = get<1>(a);  
+                        int rank1a = get<2>(a);  
+                        int rank0b = get<1>(b);
+                        int rank1b = get<2>(b);
+
+                        if (rank0a < rank0b) return true;
+                        else if (rank0a > rank0b) return false;
+                        else {
+                            if (rank1a < rank1b) return true;
+                            else return false;
                         }
+                    };
 
-                        for (int i = 0; i < vec.size(); i++) {
-                            int curr_idx = get<0>(vec[i]);
-                            w = get<3>(vec[i]);
-                            w *= 2;
-                            get<3>(vec[i]) = w;
-                            get<1>(vec[i]) = rank_map[curr_idx];
-                            int rank1 = -1;
-                            if (curr_idx + w < vec.size()) {
-                                rank1 = rank_map[curr_idx + w];
-                            }
-                            get<2>(vec[i]) = rank1;
+                    sort(vec_to_sort.begin(), vec_to_sort.end(), cmp_by_ranks);
+                }
+
+                // update rank_[i][k]
+                {
+                    rank_[get<0>(vec_to_sort[0])][k] = 0;
+                    for (int i = 1; i < vec_to_sort.size(); i++) {
+                        if (get<1>(vec_to_sort[i])  == get<1>(vec_to_sort[i - 1]) &&
+                            get<2>(vec_to_sort[i]) == get<2>(vec_to_sort[i - 1])) {
+                            rank_[get<0>(vec_to_sort[i])][k] = rank_[get<0>(vec_to_sort[i - 1])][k];
+                        } else {
+                            rank_[get<0>(vec_to_sort[i])][k] = rank_[get<0>(vec_to_sort[i - 1])][k] + 1;
                         }
                     }
                 }
+               
+                last_w *= 2;
+            }  
 
-                // done, make sa_ from vec
-                for (size_t i = 0; i < vec.size(); i++) {
-                    sa_[i] = get<0>(vec[i]);
-                }
-            }
+            // final results must be in rank_[i][logn].
+            for (int i = 0; i < s_.size(); i++) {
+                sa_[rank_[i][logn]] = i; 
+            } 
         }
         // suffix_idx, rank0, rank1, w
         // just use rank1 to do sorting.
@@ -291,4 +296,5 @@ class SuffixArray {
     private:
         string s_;
         vector<int> sa_;
+        IntMatrix rank_;
 };
