@@ -29,7 +29,7 @@ class SuffixArray {
                 int over2 = 1;
                 int w = 0;
                 while(k < rank_[0].size() && rank_[i][k] == rank_[j][k]) {
-                    w += over2;
+                    w = over2;
                     k++;
                     over2 *= 2;
                 }
