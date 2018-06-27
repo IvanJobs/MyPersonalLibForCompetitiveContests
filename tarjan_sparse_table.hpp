@@ -5,6 +5,7 @@ using IntVec = vector<int>;
 using Matrix = vector<IntVec>;
 class SparseTable {
     public:
+        SparseTable() = default;
         SparseTable(IntVec & v): v_(v) {
             buildSparseTable();
         }
@@ -45,3 +46,6 @@ class SparseTable {
         Matrix sparse_table_;
         IntVec v_;
 };
+
+using SparseTablePtr = shared_ptr<SparseTable>;
+

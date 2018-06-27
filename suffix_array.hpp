@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-
+#include "tarjan_sparse_table.hpp"
 using namespace std;
 
 using SortTupleItem = tuple<int, int, int, int>; // suffix_idx, rank0, rank1, width.
@@ -16,6 +16,26 @@ class SuffixArray {
         vector<int> & SA() {
             return sa_;
         } 
+
+        // build rmq for lcp(i, j).
+        void BuildRMQ() {
+            // what we got here?
+            // array sa_ and function LCP
+            //
+            // what does sa_ tell us?
+            // suffix sa_[i] is in position i.
+            //
+            map<int, int> suffix_orders;
+            for (int i = 0; i < sa_.size(); i++) suffix_orders[sa_[i]] = i;
+            // what does suffix_orders tell us?
+            //
+
+        }
+
+        int OptLCP(int i, int j) {
+            // optimize lcp query by RMQ.
+            return 0;
+        }
 
         // return length of Longest Common Prefix(A[i...], A[j...]).
         int LCP(int i, int j) {
@@ -316,4 +336,5 @@ class SuffixArray {
         string s_;
         vector<int> sa_;
         IntMatrix rank_;
+        SparseTablePtr sparse_table_; 
 };

@@ -37,6 +37,8 @@ TEST(SA, RadixSort) {
 
     EXPECT_TRUE(sa.LCP(0, 1) == 0);
     EXPECT_TRUE(sa.LCP(1, 3) == 3);
+    EXPECT_TRUE(sa.OptLCP(1, 3) == 3);
+    EXPECT_TRUE(sa.OptLCP(1, 3) == 3);
 }
 
 int main(int argc, char * argv[]) {
