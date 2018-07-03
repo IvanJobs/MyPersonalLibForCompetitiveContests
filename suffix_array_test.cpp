@@ -30,6 +30,7 @@ TEST(SA, RadixSort) {
     vector<int> expect{5, 3, 1, 0, 4, 2};
     // sa.BuildRadixSort();
     sa.BuildRadixSort();
+    // sa.BuildNormalSort();
     auto arr = sa.SA();
     for (size_t i = 0; i < 6; i++) {
         EXPECT_TRUE(arr[i] == expect[i]);
@@ -37,7 +38,9 @@ TEST(SA, RadixSort) {
 
     EXPECT_TRUE(sa.LCP(0, 1) == 0);
     EXPECT_TRUE(sa.LCP(1, 3) == 3);
-    EXPECT_TRUE(sa.OptLCP(1, 3) == 3);
+
+    sa.BuildRMQ();
+    EXPECT_TRUE(sa.OptLCP(0, 1) == 0);
     EXPECT_TRUE(sa.OptLCP(1, 3) == 3);
 }
 

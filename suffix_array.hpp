@@ -27,14 +27,30 @@ class SuffixArray {
             //
             map<int, int> suffix_orders;
             for (int i = 0; i < sa_.size(); i++) suffix_orders[sa_[i]] = i;
-            // what does suffix_orders tell us?
+            // what does suffix_orders tell us? 
+            // what the order index of a specific suffix index?
             //
+            vector<int> v; v.clear();
+            for (size_t i = 1; i < sa_.size(); i++) {
+                v.push_back(LCP(sa_[i - 1], sa_[i])); 
+            }
 
+            sparse_table_ = std::make_shared<SparseTable>(v);
         }
 
         int OptLCP(int i, int j) {
             // optimize lcp query by RMQ.
-            return 0;
+            map<int, int> suffix_orders;
+            for (size_t i = 0; i < sa_.size(); i++) suffix_orders[sa_[i]] = i;
+
+            int p1 = suffix_orders[i];
+            int p2 = suffix_orders[j];
+            // make sure p1 <= p2
+            if (p1 > p2) {
+                swap(p1, p2);
+            }
+            
+            return sparse_table_->Query(p1, p2 - 1);
         }
 
         // return length of Longest Common Prefix(A[i...], A[j...]).
@@ -259,12 +275,12 @@ class SuffixArray {
             for (int i = 0; i < s_.size(); i++) {
                 v.push_back(make_tuple(s_[i], i));
             }
+            
             auto cmp = [](InitSortItem a, InitSortItem b) {
                 if (get<0>(a) < get<0>(b)) {
                     return true;
                 } else return false;
             };
-
             sort(v.begin(), v.end(), cmp);
 
             // Rank[i][k]: starts from index i, width 2^k, stores its rank.
