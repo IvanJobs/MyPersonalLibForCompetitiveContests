@@ -49,3 +49,7 @@ add_executable(kmp_test
 # tarjan sparse table
 add_executable(tarjan_st_test
     tarjan_sparse_table_test.cpp)
+
+# segment tree
+add_executable(segment_tree_test
+    segment_tree_test.cpp)
