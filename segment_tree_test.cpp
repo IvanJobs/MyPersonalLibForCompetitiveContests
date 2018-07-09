@@ -25,10 +25,7 @@ TEST(SegmentTree, Basic) {
 }
 
 TEST(SegmentTree, Update) {
-    vector<int> test_arr(10);
-    for (size_t i = 0; i < test_arr.size(); i++) {
-        test_arr[i] = rand() % 100;
-    }
+    vector<int> test_arr {1, 3, 2, 5, 4, 0};
     SegmentTree<int> st(test_arr);
 
     for (size_t i = 0; i < test_arr.size(); i++) {
@@ -40,10 +37,11 @@ TEST(SegmentTree, Update) {
     }
 
     for (size_t i = 0; i < test_arr.size(); i++) {
-        // st.Update((rand() % 100) - test_arr[i], i);
+        st.Update((rand() % 100) - test_arr[i], i);
     }
 
     for (size_t i = 0; i < test_arr.size(); i++) {
+        break;
         for (size_t j = i; j < test_arr.size(); j++) {
             int s = 0;
             for (size_t k = i; k <= j; k++) s += test_arr[k];

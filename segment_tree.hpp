@@ -15,10 +15,11 @@ class SegmentTree {
         }
         
     public:
-        SegmentTree(NumberVec & raw):raw_(raw) {
+        SegmentTree(NumberVec raw):raw_(raw) {
             size_t n = raw.size();
             under_.resize(2 * n - 1);
-            recursiveConstruct(0, make_pair(0, raw_.size() - 1));
+            // cout<<"under_.size():"<<under_.size()<<endl;
+            recursiveConstruct(0, make_pair(0, n - 1));
         }
 
         void Update(Number delta, size_t j) {
@@ -57,6 +58,7 @@ class SegmentTree {
          * tr is in sr. 
          */
         Number recursiveSum(size_t i, Range sr, Range tr) {
+            cout<<"recursiveSum("<<i<<",("<<sr.first<<","<<sr.second<<"),("<<tr.first<<","<<tr.second<<"))"<<endl;
             if (RangeEqual(sr, tr)) {
                 return under_[i];
             } 
