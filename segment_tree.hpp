@@ -33,7 +33,7 @@ class SegmentTree {
 
     private:
         void recursiveUpdate(size_t i, Range r, size_t j, Number delta) {
-            cout<<"recursiveUpdate("<<i<<",("<<r.first<<","<<r.second<<"),"<<j<<","<<delta<<")"<<endl;
+            // cout<<"recursiveUpdate("<<i<<",("<<r.first<<","<<r.second<<"),"<<j<<","<<delta<<")"<<endl;
             // j must in [r.first, r.second].
             under_[i] += delta;
 
@@ -58,7 +58,7 @@ class SegmentTree {
          * tr is in sr. 
          */
         Number recursiveSum(size_t i, Range sr, Range tr) {
-            cout<<"recursiveSum("<<i<<",("<<sr.first<<","<<sr.second<<"),("<<tr.first<<","<<tr.second<<"))"<<endl;
+            // cout<<"recursiveSum("<<i<<",("<<sr.first<<","<<sr.second<<"),("<<tr.first<<","<<tr.second<<"))"<<endl;
             if (RangeEqual(sr, tr)) {
                 return under_[i];
             } 
