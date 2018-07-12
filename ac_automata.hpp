@@ -25,6 +25,11 @@ class ACAutoMeta {
         using Node = struct FakeNode;
 
     public:
+        ACAutoMeta() = default;
+        ~ACAutoMeta() {
+        
+        }
+
         void AddPatternStr(string pattern) {
             patterns_.push_back(pattern);
         }
@@ -36,10 +41,15 @@ class ACAutoMeta {
             {
                 for (auto & p: patterns_) {
                     Node * curr = root_;
+                    Node * parent = nullptr;
+                    char c = 'A';
                     for (size_t i = 0; i < p.size(); i++) {
                         if (curr == nullptr) {
                             curr = new Node();
                         }
+
+                        curr->parent_ = parent; // set parent_.
+                        curr->c_ = c; // set edge character.
 
                         int target_index = p[i] - 'a';
                        
@@ -47,6 +57,9 @@ class ACAutoMeta {
                         if (i == p.size() - 1) {
                             curr->is_tail_ = true;
                         }
+
+                        parent = curr;
+                        c = p[i];
 
                         curr = curr->children_[target_index];
                     }
@@ -87,7 +100,17 @@ class ACAutoMeta {
                     // 2. else  then check if curr's char is in parent's fail_'s char?
                     //      if it is:   curr's fail_ is set to parent's fail_'s char's pointer.
                     //      else it is not: treat   
-                     
+                    Node * fail_node = curr->parent_->fail_; // curr->parent_ cannot be nullptr.
+                    char target_index = curr->c_ - 'a';
+                    while(true) {
+                        if (fail_node->children_[target_index] != nullptr) {
+                            curr->fail_ = fail_node->children_[target_index];
+                            break;
+                        } else {
+                            if (fail_node == root_) break;
+                            fail_node = fail_node->fail_;
+                        }  
+                    }
                 }
             }
         }

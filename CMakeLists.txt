@@ -53,3 +53,7 @@ add_executable(tarjan_st_test
 # segment tree
 add_executable(segment_tree_test
     segment_tree_test.cpp)
+
+# ac autometa
+add_executable(ac_test
+    ac_automata_test.cpp)
