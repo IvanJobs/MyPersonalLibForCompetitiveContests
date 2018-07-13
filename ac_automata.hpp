@@ -10,8 +10,11 @@ using MatchResults = vector<MatchResult>;
 class ACAutoMeta {
     public:
         struct FakeNode {
+            FakeNode() {
+                for (size_t i = 0; i < 26; i++) children_[i] = nullptr;
+            }
             struct FakeNode * fail_{nullptr};
-            struct FakeNode * children_[26] {nullptr}; // suppose strings are in lowercase form.
+            struct FakeNode * children_[26] {}; // suppose strings are in lowercase form.
             bool is_tail_{false}; 
             
             // edge leads to this node. which character this edge represents?
@@ -27,7 +30,7 @@ class ACAutoMeta {
     public:
         ACAutoMeta() = default;
         ~ACAutoMeta() {
-        
+            recursiveDestroyTrie(root_);        
         }
 
         void AddPatternStr(string pattern) {
@@ -39,14 +42,13 @@ class ACAutoMeta {
 
             // first we need to build a trie based on patterns_.
             {
+                if (root_ == nullptr) root_ = new Node();
+
                 for (auto & p: patterns_) {
                     Node * curr = root_;
                     Node * parent = nullptr;
                     char c = 'A';
                     for (size_t i = 0; i < p.size(); i++) {
-                        if (curr == nullptr) {
-                            curr = new Node();
-                        }
 
                         curr->parent_ = parent; // set parent_.
                         curr->c_ = c; // set edge character.
@@ -61,6 +63,9 @@ class ACAutoMeta {
                         parent = curr;
                         c = p[i];
 
+                        if (curr->children_[target_index] == nullptr) {
+                            curr->children_[target_index] = new Node();
+                        }
                         curr = curr->children_[target_index];
                     }
                 } 
@@ -100,7 +105,8 @@ class ACAutoMeta {
                     // 2. else  then check if curr's char is in parent's fail_'s char?
                     //      if it is:   curr's fail_ is set to parent's fail_'s char's pointer.
                     //      else it is not: treat   
-                    Node * fail_node = curr->parent_->fail_; // curr->parent_ cannot be nullptr.
+                    if (curr->parent_ == nullptr) continue;
+                    Node * fail_node = curr->parent_->fail_; 
                     char target_index = curr->c_ - 'a';
                     while(true) {
                         if (fail_node->children_[target_index] != nullptr) {
@@ -120,9 +126,44 @@ class ACAutoMeta {
         }
 
         bool IsMatch(string text) {
-            return true;
+            if (root_ == nullptr) return false;
+
+            Node * curr = root_;
+            size_t i = 0;
+            while(i < text.size()) {
+                // cout<<"i:"<<i<<",curr->c_:"<<curr->c_<<endl;
+                int target_index = text[i] - 'a';
+                if (curr->children_[target_index] == nullptr) {
+                    if (curr == root_) {
+                        i++;
+                    }
+                    curr = curr->fail_;  
+                } else {
+                    if (curr->children_[target_index]->is_tail_) {
+                        return true;
+                    }
+                    i++;
+                    curr = curr->children_[target_index];
+                }
+            }
+            return false;
         }
     private:
         vector<string> patterns_{};
         Node * root_{nullptr};
+    private:
+        void recursiveDestroyTrie(Node * curr) {
+            // cout<<"curr->c_:"<<curr->c_<<endl;
+            if (curr == nullptr) return ;
+            cout<<"-1"<<endl;
+            for (size_t i = 0; i < 26; i++) {
+                cout<<i<<endl;
+                recursiveDestroyTrie(curr->children_[i]);
+                delete curr;
+                curr = nullptr;
+            }
+            cout<<"-2"<<endl;
+
+            return ;
+        }
 };
