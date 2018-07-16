@@ -89,6 +89,129 @@ TEST(SA, IsSubStr) {
     }
 }
 
+TEST(SA, MatchAllSubstrs) {
+    string raw_str = "banana";
+    SuffixArray sa(raw_str);
+    sa.BuildRadixSort();
+    sa.BuildRMQ();
+    auto suffix_arr = sa.SA();
+
+    string p = "a";
+
+    auto LeftMostSubstr = [&sa, &raw_str](string x) {
+        auto suffix_arr = sa.SA();
+        string smallest_suffix = raw_str.substr(suffix_arr[0]);
+        string largest_suffix = raw_str.substr(suffix_arr[suffix_arr.size() - 1]);
+
+        if (smallest_suffix.find(x) == string::npos && x < smallest_suffix) return -1;
+        if (largest_suffix.find(x) == string::npos && x > largest_suffix) return -1;
+
+        int left = 0;
+        int right = suffix_arr.size() - 1;
+
+        while(true) {
+            int mid = (left + right) / 2;
+            string middle_suffix = raw_str.substr(suffix_arr[mid]);
+            if (middle_suffix.find(x) == string::npos) {
+                if (x > middle_suffix) {
+                    left = mid + 1; 
+                } else { // x < middle_suffix
+                    right = mid - 1; 
+                } 
+            } else {
+                if (middle_suffix.find(x) == 0) {
+                    right = mid; 
+                } else {
+                    if (x > middle_suffix) {
+                        left = mid + 1;
+                    } else {
+                        right = mid - 1;
+                    }
+                }
+            }
+            
+            if (left >= right) break;
+        }
+
+        if (left == right) {
+            return left;    
+        } else {
+            return -1; 
+        }
+
+    };
+
+    auto RightMostSubstr = [&sa, &raw_str](string x) {
+        auto suffix_arr = sa.SA();
+        string smallest_suffix = raw_str.substr(suffix_arr[0]);
+        string largest_suffix = raw_str.substr(suffix_arr[suffix_arr.size() - 1]);
+
+        if (smallest_suffix.find(x) == string::npos && x < smallest_suffix) return -1;
+        if (largest_suffix.find(x) == string::npos && x > largest_suffix) return -1;
+
+        int left = 0;
+        int right = suffix_arr.size() - 1;
+        while(true) {
+            int mid = (left + right) / 2;
+            string middle_suffix = raw_str.substr(suffix_arr[mid]);
+            if (middle_suffix.find(x) == string::npos) {
+                if (x > middle_suffix) {
+                    left = mid + 1;   
+                } else { // x < middle_suffix.
+                    right = mid - 1; 
+                }
+            } else {
+               if (middle_suffix.find(x) == 0) {
+                    left = mid;
+               } else {
+                    if (x > middle_suffix) {
+                        left = mid + 1;
+                    } else {
+                        right = mid - 1;
+                    }
+               }
+            }
+            if (left >= right) break;
+        }
+        if (left == right) {
+            return left;
+        } else {
+            return -1;
+        }
+    };
+    EXPECT_TRUE(suffix_arr[LeftMostSubstr(p)] == 5);
+    EXPECT_TRUE(suffix_arr[RightMostSubstr(p)] == 1);
+    EXPECT_TRUE(RightMostSubstr(p) - LeftMostSubstr(p) + 1 == 3);
+}
+
+TEST(SA, LongestRepeatedSubstr) {
+    string raw_str = "banana";
+    SuffixArray sa(raw_str);
+    sa.BuildRadixSort();
+    sa.BuildRMQ();
+
+    using Result = tuple<int, string>;
+    auto LRS = [&sa, &raw_str](){
+        int i = 1;
+        int res_i = -1;
+        int res_cnt = -1;
+        while(i < raw_str.size()) {
+            int curr_cnt = sa.OptLCP(i - 1, i);
+            if (curr_cnt > res_cnt) {
+                res_i = i;
+                res_cnt = curr_cnt;
+            }
+            i++;
+        }
+
+        return make_tuple(res_cnt, raw_str.substr(sa.SA()[res_i], res_cnt));
+    };
+
+    Result res = LRS();
+    EXPECT_TRUE(get<0>(res) == 3);
+    EXPECT_TRUE(get<1>(res) == "ana");
+}
+
 int main(int argc, char * argv[]) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
