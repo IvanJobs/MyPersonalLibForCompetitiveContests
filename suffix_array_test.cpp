@@ -44,6 +44,51 @@ TEST(SA, RadixSort) {
     EXPECT_TRUE(sa.OptLCP(1, 3) == 3);
 }
 
+TEST(SA, IsSubStr) {
+    string raw_str = "banana";
+    SuffixArray sa(raw_str);
+    sa.BuildRadixSort();
+    sa.BuildRMQ();
+
+    vector<string> x {"ban", "ana", "a", "abc", "ana", "x"};
+    vector<bool> res {true, true, true, false, true, false};
+    
+    auto IsSubstr = [&sa, &raw_str](string s){
+        auto suffix_arr = sa.SA();
+        string smallest_suffix = raw_str.substr(suffix_arr[0]);
+        string largest_suffix = raw_str.substr(suffix_arr[suffix_arr.size() - 1]);
+
+        if (smallest_suffix.find(s) == string::npos && s < smallest_suffix) {
+            return false;
+        }
+        if (largest_suffix.find(s) == string::npos && s > largest_suffix) {
+            return false;
+        }
+
+        int left = 0;
+        int right = suffix_arr.size() - 1;
+        while(true) {
+            if (left > right) break;
+            int mid = (left + right) / 2;
+            string middle_suffix = raw_str.substr(suffix_arr[mid]);
+            if (middle_suffix.find(s) == string::npos) {
+                if (s > middle_suffix) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            } else {
+                return true;
+            } 
+        }
+        return false;
+    };
+
+    for (size_t i = 0; i < x.size(); i++) {
+        EXPECT_TRUE(IsSubstr(x[i]) == res[i]);
+    }
+}
+
 int main(int argc, char * argv[]) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
