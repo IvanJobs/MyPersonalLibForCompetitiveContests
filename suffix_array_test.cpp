@@ -27,6 +27,14 @@ TEST(SA, NormalSort) {
 
 TEST(SA, RadixSort) {
     SuffixArray sa("banana");
+    /*
+     a
+     ana
+     anana
+     banana
+     na
+     nana
+     * */
     vector<int> expect{5, 3, 1, 0, 4, 2};
     // sa.BuildRadixSort();
     sa.BuildRadixSort();
@@ -40,8 +48,8 @@ TEST(SA, RadixSort) {
     EXPECT_TRUE(sa.LCP(1, 3) == 3);
 
     sa.BuildRMQ();
-    EXPECT_TRUE(sa.OptLCP(0, 1) == 0);
-    EXPECT_TRUE(sa.OptLCP(1, 3) == 3);
+    EXPECT_TRUE(sa.OptLCP(0, 1) == 1);
+    EXPECT_TRUE(sa.OptLCP(1, 3) == 0);
 }
 
 TEST(SA, IsSubStr) {
@@ -192,11 +200,12 @@ TEST(SA, LongestRepeatedSubstr) {
 
     using Result = tuple<int, string>;
     auto LRS = [&sa, &raw_str](){
+        auto suffix_arr = sa.SA();
         int i = 1;
         int res_i = -1;
         int res_cnt = -1;
-        while(i < raw_str.size()) {
-            int curr_cnt = sa.OptLCP(i - 1, i);
+        while(i < suffix_arr.size()) {
+            int curr_cnt = sa.LCP(suffix_arr[i - 1], suffix_arr[i]);
             if (curr_cnt > res_cnt) {
                 res_i = i;
                 res_cnt = curr_cnt;
@@ -204,12 +213,44 @@ TEST(SA, LongestRepeatedSubstr) {
             i++;
         }
 
-        return make_tuple(res_cnt, raw_str.substr(sa.SA()[res_i], res_cnt));
+        return make_tuple(res_cnt, raw_str.substr(suffix_arr[res_i], res_cnt));
     };
 
     Result res = LRS();
     EXPECT_TRUE(get<0>(res) == 3);
     EXPECT_TRUE(get<1>(res) == "ana");
+}
+
+TEST(SA, LongestCommonSubstr) {
+    auto LCS = [](string s1, string s2){
+        string s = s1 + "$" + s2;
+
+        SuffixArray sa(s);
+        sa.BuildRadixSort();
+        sa.BuildRMQ();
+        
+        int res = 0;
+        int res_i = -1;
+        for (size_t i = 1; i < s.size(); i++) {
+            int tmp = sa.OptLCP(i - 1, i); 
+            int x = sa.SA()[i - 1];
+            int y = sa.SA()[i];
+            if (x > y) swap(x, y);
+            
+            if (x < s1.size() && y >= s1.size() + 1 && tmp > res) {
+                res = tmp;
+                res_i = i;
+            }
+        } 
+        // cout<<s.substr(sa.SA()[res_i - 1])<<endl;
+        // cout<<s.substr(sa.SA()[res_i])<<endl;
+        return res;
+    };
+    // cout<<LCS("banana", "japan")<<endl;
+    EXPECT_TRUE(LCS("banana", "japan") == 2);
+    EXPECT_TRUE(LCS("banana", "banana") == 6);
+    EXPECT_TRUE(LCS("banana", "bananb") == 5);
+    EXPECT_TRUE(LCS("abanana", "bbanana") == 6);
 }
 
 int main(int argc, char * argv[]) {

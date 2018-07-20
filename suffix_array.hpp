@@ -38,19 +38,13 @@ class SuffixArray {
             sparse_table_ = std::make_shared<SparseTable>(v);
         }
 
+        // i, j are suffix_array's indexes.
         int OptLCP(int i, int j) {
-            // optimize lcp query by RMQ.
-            map<int, int> suffix_orders;
-            for (size_t i = 0; i < sa_.size(); i++) suffix_orders[sa_[i]] = i;
-
-            int p1 = suffix_orders[i];
-            int p2 = suffix_orders[j];
-            // make sure p1 <= p2
-            if (p1 > p2) {
-                swap(p1, p2);
+            // make sure i < j
+            if (i > j) {
+                swap(i, j);
             }
-            
-            return sparse_table_->Query(p1, p2 - 1);
+            return sparse_table_->Query(i, j - 1);
         }
 
         // return length of Longest Common Prefix(A[i...], A[j...]).

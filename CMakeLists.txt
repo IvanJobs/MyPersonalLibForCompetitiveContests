@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(PersonalLib)
 
-set(CMAKE_CXX_FLAGS " -std=c++11 ")
+set(CMAKE_CXX_FLAGS " -std=c++11 -g ")
 link_libraries(gtest)
 # disjoint set
 add_executable(disjoin_set_test
