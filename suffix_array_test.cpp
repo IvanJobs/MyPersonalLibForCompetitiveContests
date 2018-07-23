@@ -253,6 +253,35 @@ TEST(SA, LongestCommonSubstr) {
     EXPECT_TRUE(LCS("abanana", "bbanana") == 6);
 }
 
+TEST(SA, LongestPalindromicSubstr) {
+    auto LPS = [](string s0) {
+        string origin_s0 = s0;
+        reverse(s0.begin(), s0.end());
+        string s = origin_s0 + "$" + s0;
+        SuffixArray sa(s);
+        sa.BuildRadixSort();
+        sa.BuildRMQ();
+
+        auto suffix_arr = sa.SA();
+        int res = 0;
+        for (size_t i = 1; i < suffix_arr.size(); i++) {
+            int x = suffix_arr[i -1];
+            int y = suffix_arr[i];
+            if (x > y) swap(x, y);
+            int lcp = sa.OptLCP(i - 1, i);
+
+            if (x + y + lcp - 1 == 2 * s0.size() && lcp > res) {
+                res = lcp; 
+            } 
+        } 
+        return res;
+    };
+    cout<<LPS("ababa")<<endl;
+    cout<<LPS("baaac")<<endl;
+    EXPECT_TRUE(LPS("ababa") == 5);
+    EXPECT_TRUE(LPS("baaac") == 3);
+}
+
 int main(int argc, char * argv[]) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
