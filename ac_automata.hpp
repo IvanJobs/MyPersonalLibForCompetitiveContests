@@ -155,14 +155,12 @@ class ACAutoMeta {
         void recursiveDestroyTrie(Node * curr) {
             // cout<<"curr->c_:"<<curr->c_<<endl;
             if (curr == nullptr) return ;
-            cout<<"-1"<<endl;
             for (size_t i = 0; i < 26; i++) {
-                cout<<i<<endl;
+                // cout<<i<<endl;
                 recursiveDestroyTrie(curr->children_[i]);
-                delete curr;
-                curr = nullptr;
             }
-            cout<<"-2"<<endl;
+            delete curr;
+            curr = nullptr;
 
             return ;
         }
