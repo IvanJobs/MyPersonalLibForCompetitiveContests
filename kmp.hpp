@@ -7,7 +7,7 @@ class Kmp {
         static int SearchFirst(string text, string pattern) {
             // build Fail arr on pattern.
             //
-            vector<int> F; // idx -> value means: suffix[idx]'s longest common prefix/suffix.
+            vector<int> F; // idx -> value means: prefix[0...idx]'s longest common prefix/suffix.
             F.resize(pattern.size());
 
             F[0] = 0;

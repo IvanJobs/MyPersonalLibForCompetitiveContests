@@ -6,7 +6,7 @@ using namespace std;
 
 TEST(TrieBasic, CheckHas) {
     Trie t;
-    vector<string> v {"hello", "world"};
+    vector<string> v {"hello", "world", "hi"};
     for (auto s: v) t.Insert(s);
 
     EXPECT_TRUE(t.Has("hello"));

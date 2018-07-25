@@ -30,18 +30,17 @@ class Trie {
       for (int i = 0; i < s.size(); i++) {
         char c = s[i];
         int idx = c - 'a';
-        TrieNode * new_node = nullptr;
         
         if (curr->children_[idx] == nullptr) {
-          new_node = newTrieNode();
+          TrieNode * new_node = newTrieNode();
           new_node->c_ = c;
           curr->children_[idx] = new_node;
         }
 
         if (i == s.size() - 1) {
-          new_node->final_ = true;
+          curr->children_[idx]->final_ = true;
         }
-        curr = new_node;
+        curr = curr->children_[idx];
       }  
     }
     bool Has(const string & s) {
