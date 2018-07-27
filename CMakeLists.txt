@@ -57,3 +57,7 @@ add_executable(segment_tree_test
 # ac autometa
 add_executable(ac_test
     ac_automata_test.cpp)
+
+# ex_gcd
+add_executable(exgcd_test
+    ex_gcd_test.cpp)

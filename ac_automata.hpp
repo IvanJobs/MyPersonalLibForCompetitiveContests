@@ -113,7 +113,10 @@ class ACAutoMeta {
                             curr->fail_ = fail_node->children_[target_index];
                             break;
                         } else {
-                            if (fail_node == root_) break;
+                            if (fail_node == root_) {
+                                curr->fail_ = root_;
+                                break;
+                            }
                             fail_node = fail_node->fail_;
                         }  
                     }
@@ -136,7 +139,7 @@ class ACAutoMeta {
                 if (curr->children_[target_index] == nullptr) {
                     if (curr == root_) {
                         i++;
-                    }
+                    } 
                     curr = curr->fail_;  
                 } else {
                     if (curr->children_[target_index]->is_tail_) {
