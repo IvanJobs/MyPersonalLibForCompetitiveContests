@@ -61,3 +61,7 @@ add_executable(ac_test
 # ex_gcd
 add_executable(exgcd_test
     ex_gcd_test.cpp)
+
+# interval tree 
+#add_executable(interval_tree_test
+#    interval_tree_test.cpp)

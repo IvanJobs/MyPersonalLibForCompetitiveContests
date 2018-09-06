@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <bits/stdc++.h>
 #include "segment_tree.hpp"
-
+// boost
 using namespace std;
 
 TEST(SegmentTree, Basic) {
@@ -37,11 +37,12 @@ TEST(SegmentTree, Update) {
     }
 
     for (size_t i = 0; i < test_arr.size(); i++) {
-        st.Update((rand() % 100) - test_arr[i], i);
+        int delta = (rand() % 100) - test_arr[i];
+        st.Update(delta, i);
+        test_arr[i] += delta;
     }
 
     for (size_t i = 0; i < test_arr.size(); i++) {
-        break;
         for (size_t j = i; j < test_arr.size(); j++) {
             int s = 0;
             for (size_t k = i; k <= j; k++) s += test_arr[k];

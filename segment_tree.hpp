@@ -17,7 +17,7 @@ class SegmentTree {
     public:
         SegmentTree(NumberVec raw):raw_(raw) {
             size_t n = raw.size();
-            under_.resize(2 * n - 1);
+            under_.resize(2 * n + 10);
             // cout<<"under_.size():"<<under_.size()<<endl;
             recursiveConstruct(0, make_pair(0, n - 1));
         }
