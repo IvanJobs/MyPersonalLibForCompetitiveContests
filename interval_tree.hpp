@@ -4,12 +4,12 @@
 using namespace std;
 
 struct DummyNode {
-    DummyNode(int key, int right):key_(key), right_(right), max_(right) {
+    DummyNode(int key, int right):key_(key), key_right_(right), max_(right) {
         srand(time(nullptr));
         fix_ = rand();
     }
     int key_; // actually, it's the left_.
-    int right_;
+    int key_right_; // [key_, key_right_] represents a range.
     int max_;
     int fix_;
     struct DummyNode * left_{nullptr};
@@ -38,25 +38,29 @@ class IntervalTree {
     public:
         IntervalTree() = default;
         ~IntervalTree();
-        void Insert(int key, int right) {
-            recursiveInsert(root_, key, right);
+        void Insert(int key, int key_right) {
+            recursiveInsert(root_, key, key_right);
             size++;
         }
-        void Delete(int key, int right) {
-            if (this->Has(key, right) == false) return ;
-            recursiveDelete(root_, key, right);
+        void Delete(int key) {
+            if (this->Has(key) == false) return ;
+            recursiveDelete(root_, key);
             size--;
         }
-        bool Has(int key, int right);
+
+        bool Has(int key);
+
+        bool AnyOverlapping(int left, int right);
+
         size_t Size() {
             return size;
         }
     private:
-        void recursiveInsert(Node * & curr, int key, int right);
-        void recursiveDelete(Node * & curr, int key, int right);
+        void recursiveInsert(Node * & curr, int key, int key_right);
+        void recursiveDelete(Node * & curr, int key);
         void nodeSwap(Node * lhs, Node * rhs) {
             swap(lhs->key_, rhs->key_);
-            swap(lhs->right_, rhs->right_);
+            swap(lhs->key_right_, rhs->key_right_);
             swap(lhs->max_, rhs->max_);
             swap(lhs->fix_, rhs->fix_);
         }
@@ -64,8 +68,11 @@ class IntervalTree {
         Node * & findRightSubtreeMin(Node * & curr);
         Node * & findLeftSubtreeMax(Node * & curr);
 
+        bool recursiveFindOverlapping(Node * & curr, int left, int right);
+
         void rightRotate(Node * & parent);
         void leftRotate(Node * & parent);
+        void keepMax(Node * & parent);
     private:
         Node * root_{nullptr};
         size_t size{0};
@@ -87,27 +94,29 @@ IntervalTree::~IntervalTree() {
     for (Node * p: v) delete p;
 }
 
-void IntervalTree::recursiveInsert(Node * & curr, int key, int right) {
+void IntervalTree::recursiveInsert(Node * & curr, int key, int key_right) {
     if (curr == nullptr) {
         // find where to insert the curr node.
-        curr = new Node(key);
+        curr = new Node(key, key_right);
         
         return ;
     }
     if (key <= curr->key_) {
-        recursiveInsert(curr->left_, key); 
+        recursiveInsert(curr->left_, key, key_right); 
+        curr->max_ = max(curr->max_, curr->left_->max_);
         if (curr->left_->fix_ < curr->fix_) {
             rightRotate(curr); 
         }
     } else {
-        recursiveInsert(curr->right_, key);
+        recursiveInsert(curr->right_, key, key_right);
+        curr->max_ = max(curr->max_, curr->right_->max_);
         if (curr->right_->fix_ < curr->fix_) {
             leftRotate(curr);
         }
     }
 }
 
-void IntervalTree::recursiveDelete(Node * & curr, int key, int right) {
+void IntervalTree::recursiveDelete(Node * & curr, int key) {
     if (curr == nullptr) return ;
     if (key < curr->key_) {
         recursiveDelete(curr->left_, key);
@@ -165,7 +174,7 @@ void IntervalTree::recursiveDelete(Node * & curr, int key, int right) {
     }
 }
 
-bool IntervalTree::Has(int key, int right) {
+bool IntervalTree::Has(int key) {
     Node * curr = root_;
     while(curr != nullptr) {
         if (key < curr->key_) {
@@ -193,6 +202,17 @@ Node * & IntervalTree::findLeftSubtreeMax(Node * & curr) {
     return curr;
 }
 
+void IntervalTree::keepMax(Node * & p) {
+    int candi_max = p->max_;
+    if (p->left_ != nullptr) {
+        candi_max = max(candi_max, p->left_->max_);
+    }
+    if (p->right_ != nullptr) {
+        candi_max = max(candi_max, p->right_->max_);
+    }
+    p->max_ = candi_max;
+}
+
 void IntervalTree::leftRotate(Node * & x) {
     Node * & y = x->right_;
     Node * & a = x->left_;
@@ -202,6 +222,10 @@ void IntervalTree::leftRotate(Node * & x) {
     x->right_ = b;
     y->left_ = x;
     x = y;
+
+    // maintain max_.
+    keepMax(x->right_);
+    keepMax(x);
 }
 
 void IntervalTree::rightRotate(Node * & y) {
@@ -213,6 +237,34 @@ void IntervalTree::rightRotate(Node * & y) {
     y->left_ = b;
     x->right_ = y;
     y = x;
+
+    // maintain max_.
+    keepMax(y->left_);
+    keepMax(y);
+}
+
+
+bool IntervalTree::AnyOverlapping(int left, int right) {
+    return recursiveFindOverlapping(root_, left, right);
+}
+
+bool IntervalTree::recursiveFindOverlapping(Node * & curr, int left, int right) {
+
+    if (curr == nullptr) return false;
+
+    if (curr->key_ <= right && curr->key_right_ >= left){
+        return true;
+    }
+
+    if (curr->left_ == nullptr) {
+        return recursiveFindOverlapping(curr->right_, left, right);    
+    }
+
+    if (left <= curr->left_->max_) {
+        return recursiveFindOverlapping(curr->left_, left, right);
+    } else {
+        return recursiveFindOverlapping(curr->right_, left, right);
+    }
 }
 
 #endif
